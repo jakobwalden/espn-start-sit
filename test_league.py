@@ -30,7 +30,6 @@ for t in league.teams:
 
 #Define my team
 my_team = next(t for t in league.teams if t.team_id == 10)
-print(my_team)
 
 
 ###Atrtibutes of a player object#####
@@ -40,7 +39,7 @@ print(my_team)
 #    break  
 #####################
 
-print(my_team, "(key metrics)")
+print("\n", my_team, "(key metrics)")
 header = f"{'Name':24} {'Pos':3} {'NFL':3} {'Proj':>6} {'Own%':>6} {'Start%':>7} {'Injury':>8} {'Slot':>6}"
 print(header)
 print("-" * len(header))
@@ -55,10 +54,12 @@ for p in my_team.roster:
 
     print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
           f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
+####
 
+#Change to who im playing
 Weekly_team = next(t for t in league.teams if t.team_id == 3)
 
-print(Weekly_team,"(key metrics)")
+print("\n", Weekly_team,"(key metrics)")
 header = f"{'Name':24} {'Pos':3} {'NFL':3} {'Proj':>6} {'Own%':>6} {'Start%':>7} {'Injury':>8} {'Slot':>6}"
 print(header)
 print("-" * len(header))
@@ -73,3 +74,4 @@ for p in Weekly_team.roster:
 
     print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
           f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
+####
