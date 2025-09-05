@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 from espn_api.football import League
+import datetime
 
 # Load .env from the project root
 load_dotenv(find_dotenv(), override=True)
@@ -106,6 +107,34 @@ for p in my_team.roster:
           f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
 ####
 
+today = datetime.datetime.now()
+week_ago = today - datetime.timedelta(days=7)
+
+rows = []
+for t in league.transactions():
+    # skip if no date
+    if t.date is None:
+        continue
+
+    # convert ms → datetime
+    tx_date = datetime.datetime.fromtimestamp(t.date / 1000)
+
+    if tx_date >= week_ago:
+        rows.append({
+            "Date": tx_date,
+            "Type": t.type,
+            "Team": t.team.team_name if t.team else None,
+            "Player": getattr(t, "playerName", None)
+        })
+
+txns_df = pd.DataFrame(rows)
+txns_df.groupby("Team").size().sort_values(ascending=False)
+summary = txns_df.groupby("Team").size().sort_values(ascending=False)
+
+print("\n=== Transaction History (This Week) ===\n")
+print(summary.to_string())
+
+
 #Change to who im playing
 Weekly_team = next(t for t in league.teams if t.team_id == 3)
 
@@ -125,5 +154,6 @@ for p in Weekly_team.roster:
     print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
           f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
 ####
+
 
 
