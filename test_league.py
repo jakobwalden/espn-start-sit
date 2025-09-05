@@ -90,23 +90,7 @@ print(fa_df.to_string(index=False))
 
 #####
 
-print("\n", my_team, "(key metrics)")
-header = f"{'Name':24} {'Pos':3} {'NFL':3} {'Proj':>6} {'Own%':>6} {'Start%':>7} {'Injury':>8} {'Slot':>6}"
-print(header)
-print("-" * len(header))
-
-for p in my_team.roster:
-    nfl = getattr(p, "team_abbreviation", getattr(p, "proTeam", ""))
-    proj = getattr(p, "projected_avg_points", None)
-    own = getattr(p, "percent_owned", None)
-    started = getattr(p, "percent_started", None)
-    inj = getattr(p, "injuryStatus", "")
-    slot = getattr(p, "lineupSlot", "")
-
-    print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
-          f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
-####
-
+### Txn History (weekly) ###
 today = datetime.datetime.now()
 week_ago = today - datetime.timedelta(days=7)
 
@@ -134,6 +118,25 @@ summary = txns_df.groupby("Team").size().sort_values(ascending=False)
 print("\n=== Transaction History (This Week) ===\n")
 print(summary.to_string())
 
+#####
+
+####
+print("\n", my_team, "(key metrics)")
+header = f"{'Name':24} {'Pos':3} {'NFL':3} {'Proj':>6} {'Own%':>6} {'Start%':>7} {'Injury':>8} {'Slot':>6}"
+print(header)
+print("-" * len(header))
+
+for p in my_team.roster:
+    nfl = getattr(p, "team_abbreviation", getattr(p, "proTeam", ""))
+    proj = getattr(p, "projected_avg_points", None)
+    own = getattr(p, "percent_owned", None)
+    started = getattr(p, "percent_started", None)
+    inj = getattr(p, "injuryStatus", "")
+    slot = getattr(p, "lineupSlot", "")
+
+    print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
+          f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
+####
 
 #Change to who im playing
 Weekly_team = next(t for t in league.teams if t.team_id == 3)
