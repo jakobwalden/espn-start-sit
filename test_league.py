@@ -4,7 +4,7 @@ from dotenv import load_dotenv, find_dotenv
 from espn_api.football import League
 import datetime
 
-# Load .env from the project root
+# Load .env 
 load_dotenv(find_dotenv(), override=True)
 
 def must_get(name: str) -> str:
@@ -15,7 +15,7 @@ def must_get(name: str) -> str:
 
 LEAGUE_ID = int(must_get("LEAGUE_ID"))
 YEAR = int(must_get("YEAR"))
-ESPN_S2 = must_get("ESPN_S2")           #
+ESPN_S2 = must_get("ESPN_S2")           
 SWID = must_get("SWID")                 
 
 league = League(
@@ -35,6 +35,7 @@ my_team = next(t for t in league.teams if t.team_id == 10)
 
 
 ###Atrtibutes of a player object#####
+
 #print("\nMy Roster:")
 #for player in my_team.roster:
 #    print(dir(player))  
