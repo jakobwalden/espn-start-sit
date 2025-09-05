@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 from espn_api.football import League
 
@@ -37,7 +38,56 @@ my_team = next(t for t in league.teams if t.team_id == 10)
 #for player in my_team.roster:
 #    print(dir(player))  
 #    break  
+
 #####################
+
+### All Attributes for defined player on my_team ####
+p = my_team.roster[0] # 0 = puka
+attrs = {attr: getattr(p, attr) for attr in dir(p) if not attr.startswith("_")and attr not in ["stats", "schedule"]}
+df = pd.DataFrame(list(attrs.items()), columns=["Attribute", "Value"])
+print(df)
+
+####
+
+### Compare Ownership ###
+
+def top_available_by_ownership(league, positions=None, size_per_pos = 250, min_owned=50.0, top_n=25):
+    if positions is None: 
+        positions = ["QB", "RB", "WR", "TE", "K", "D/ST"]
+
+    by_id = {}
+    for pos in positions:
+        for p in league.free_agents(size=size_per_pos, position=pos):
+            pid = getattr(p, "playerId", None)
+            if pid is None: 
+                continue
+            owned = getattr(p, "percent_owned", 0.0) or 0.0
+            if pid not in by_id or owned > by_id[pid]["Owned%"]:
+                by_id[pid] = {
+                    "PlayerID": pid,
+                    "Name": p.name,
+                    "Pos": p.position,
+                    "NFL": getattr(p, "team_abbreviation", getattr(p, "proTeam", "")),
+                    "Owned%": round(owned, 2),
+                    "Started%": round(getattr(p, "percent_started", 0.0) or 0.0, 2),
+                    "ProjAvg": round(getattr(p, "projected_avg_points", 0.0) or 0.0, 2),
+                    "ProjTotal": round(getattr(p, "projected_total_points", 0.0) or 0.0, 2),
+                    "Injury": getattr(p, "injuryStatus", ""),
+                    "Bye": getattr(p, "bye_week", getattr(p, "byeWeek", "")),
+                }
+
+    df = pd.DataFrame(by_id.values())
+    if df.empty:
+        return df
+
+    df = df[df["Owned%"] >= min_owned].sort_values(["Owned%", "ProjAvg"], ascending=[False, False])
+    return df.head(top_n).reset_index(drop=True)
+
+# Example usage:
+fa_df = top_available_by_ownership(league, min_owned=40.0, top_n=30)
+print(fa_df.to_string(index=False))
+
+#####
 
 print("\n", my_team, "(key metrics)")
 header = f"{'Name':24} {'Pos':3} {'NFL':3} {'Proj':>6} {'Own%':>6} {'Start%':>7} {'Injury':>8} {'Slot':>6}"
@@ -75,3 +125,5 @@ for p in Weekly_team.roster:
     print(f"{p.name:24} {p.position:3} {str(nfl):3} {proj if proj is not None else 0:6.2f} "
           f"{(own or 0):6.1f} {(started or 0):7.1f} {inj:8} {slot:6}")
 ####
+
+
